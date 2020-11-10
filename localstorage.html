@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="vv"></div>
+    <button onclick="fn()">点击设置有效期的localstorage</button>
+    <button onClick="look()">获取localstorage</button>
+
+</body>
+
+</html>
+<script>
+
+    fetch("http://www.chst.vip/users/getCaptcha")
+        .then(body => body.json())
+        .then(res => { 
+            vv.innerHTML = res.img
+        })
+
+    //1.设置localstorage的时候再设置一个过期时间字段 获取当前的毫秒数加上设置的过期时间毫秒数 expires
+    //2.设置localstorage的时候设置一个定时器,去检查是否过期 判断条件: 用当前时间的毫秒数减去设置过期时间的毫秒数 如果是正值表示已经过期,如果是负值表示未过期
+
+    // 封装一个localstorage的方法
+    let interval = null;
+    function setl(key, value, expires) {
+        expires = +new Date() + expires
+        if (typeof value === 'object') {
+            value.expires = expires;
+        } else {
+            value = {
+                [key]: value,
+                expires
+            }
+        }
+        value = JSON.stringify(value)
+        localStorage.setItem(key, value)
+        interval = setInterval(function () {
+            check(key)
+        }, 100)
+    }
+    //移除localstorage
+    function removel(key) {
+        localStorage.removeItem(key)
+    }
+    // function fn() {
+    //     setl('qf', {
+    //         msg: "做真实的自己,用良心做教育",
+    //         expires: +new Date() + 5000
+    //     })
+    // }
+
+
+    function check(key) {
+        let target = localStorage.getItem(key);
+        target = JSON.parse(target)
+        let timer = +new Date()
+        if (timer - target.expires > 0) {
+            //失效
+            alert('已经失效了')
+            removel(key)
+            clearInterval(interval)
+        } else {
+            // alert('未失效')
+        }
+
+    }
+
+    function getl(key) {
+        let target = localStorage.getItem(key) || '{}'
+        target = JSON.parse(target)
+        if (target === "{}") return '已经失效了';
+        if (target[key]) {
+            return target[key]
+        } else {
+            delete target.expires
+            return target
+        }
+
+    }
+
+    function fn() {
+        setl('qf', {
+            msg: '做真实的自己'
+        }, 10000)
+    }
+
+    function look() {
+        console.log(getl('qf'));
+    }
+</script>

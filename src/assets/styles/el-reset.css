@@ -1,0 +1,12 @@
+.home .el-carousel{
+    width: 300px;
+}
+/* 表单输入框样式 */
+.Login .el-input{
+  width: 250px;
+}
+
+/* .Login video{
+    width: 100%;
+    height: 100%!important;
+   }  */
